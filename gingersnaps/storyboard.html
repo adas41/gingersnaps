@@ -29,6 +29,12 @@
                         display: inline;
                 }
 
+                .option{
+                        width: 200px;
+                        height: 200px;
+                        margin-right: 20px; 
+                }
+
         </style>
 
         </head>
@@ -86,24 +92,31 @@
                 }
 
                 function showQn(){
-                        
+
                 }
 
                 function saveQnToStore(){
                         $(qnList).each(function(index, qn){
+                                //console.log(qn);
                                 var obj = {
                                         'options' : qn['options'],
                                         'correct_option' : qn['correct_option']
                                 };
-                                qnStore[qn[id]] = obj;
+                                qnStore[qn['id']] = obj;
                         });
                         console.log(qnStore);
                 }
 
                 function showQn () {
+
                         $("#divCounter").html(Number(sessionStorage.qnCount) + 1);  
                         $("#divQn").html(qnList[sessionStorage.qnCount]['qn_text']);
-                        $("#divOptions").html(qnList[sessionStorage.qnCount]['options']);  
+
+                        $("#divOptions").html("");
+
+                        $(qnList[sessionStorage.qnCount]['options']).each(function(index, option){
+                                $("#divOptions").append("<img src = '" + option + "' class='option' />");
+                        });  
                 }
 
                 function prevQn () {
