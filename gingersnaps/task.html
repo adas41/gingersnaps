@@ -86,6 +86,7 @@
 			    oReq.open("POST", url, true);
 			  	oReq.onload = function(oEvent) {
 			    	if (oReq.status == 200) {
+                        alert(oReq.responseText);
 			      		//oOutput.innerHTML = "Uploaded!";
 			      		//sessionStorage.taskCount++;
                         //alert("Uploaded");

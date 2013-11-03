@@ -4,16 +4,20 @@
 
 	$target_path = "uploads/";
 
-	$target_path = $target_path . basename( $_FILES['imgInp']['name']); 
+	$info = pathinfo($_FILES['imgInp']['name']);
+ 	$ext = $info['extension']; // get the extension of the file
+ 	$newname = time() . '_image.' . $ext; 
+
+ 	$target = $target_path . $newname; 
 
 	$id = $_POST['id'];
 	echo $id;
 
-	$img_url = "http://" . $host . "/gingersnaps/php/" . $target_path;
+	$img_url = "http://" . $host . "/gingersnaps/php/" . $target;
 		$query = "INSERT INTO img_bank (id, img_url) VALUES (" . $id .  ",'" . $img_url . "')";
 		echo $query;
 
-	if(move_uploaded_file($_FILES['imgInp']['tmp_name'], $target_path)) {
+	if(move_uploaded_file($_FILES['imgInp']['tmp_name'], $target)) {
 
 
 		mysqli_query($con, $query);
