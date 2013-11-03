@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+        <head>
+                <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style type="text/css">
+
+                #divCounter{
+                        -webkit-border-radius: 99px;
+                -moz-border-radius: 99px;
+                border-radius: 99px;
+                behavior: url(PIE.htc);
+                        width: 50px;
+                height: 50px;
+                        text-align: center;
+                        vertical-align: middle;
+                        background-color: #f00;
+                        color: #fff;
+                        display: inline;
+                overflow: hidden;
+                }
+
+                #divQn{
+                        display: inline;
+                }
+
+        </style>
+
+        </head>
+        
+        <body>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        
+        <script type="text/javascript">
+
+                var qnList = [];
+
+                var qnStore = {};
+
+                var score = 0;
+                var increment = 10;
+
+                $(document).ready(function(){
+                        $.ajax({  
+                        type: "POST",  
+                        url: "./php/getQns.php",  
+                        data: "",  
+                        success: function(response) {  
+                        console.log(response);
+                        qnList = JSON.parse(response);
+                                init();
+                        }  
+                });
+
+                // add on drag event completion handler which will - 
+                // 0. confirm response
+                // 1. saveScore()
+                // 2. move the user to the next question
+
+                });
+
+
+                function init () {
+                        saveQnToStore();
+                        if (typeof(Storage) !== "undefined"){
+                                if (!sessionStorage.qnCount){
+                                        sessionStorage.qnCount = 0;
+                                }                
+                        }
+                        showQn();
+                }
+
+
+                function saveScore (response) {
+                       
+                       if(response){
+                        score += increment;
+                       }
+    
+                }
+
+                function showQn(){
+                        
+                }
+
+                function saveQnToStore(){
+                        $(qnList).each(function(index, qn){
+                                var obj = {
+                                        'options' : qn['options'],
+                                        'correct_option' : qn['correct_option']
+                                };
+                                qnStore[qn[id]] = obj;
+                        });
+                        console.log(qnStore);
+                }
+
+                function showQn () {
+                        $("#divCounter").html(Number(sessionStorage.qnCount) + 1);  
+                        $("#divQn").html(qnList[sessionStorage.qnCount]['qn_text']);
+                        $("#divOptions").html(qnList[sessionStorage.qnCount]['options']);  
+                }
+
+                function prevQn () {
+                        if(sessionStorage.qnCount){
+                                (sessionStorage.qnCount - 1) < 0 ? sessionStorage.qnCount = 0 : sessionStorage.qnCount--;
+                                showQn();
+                        }
+                }
+
+                function nextQn () {
+                //alert(sessionStorage.qnCount);
+                        if(sessionStorage.qnCount){
+                    if((Number(sessionStorage.qnCount) + 1) >= qnList.length){
+                        alert("Congratulations! You successfully completed all the tasks. You can now start the storyboard building exercise.");
+                        window.location.href = "./storyboard.html";    
+                    }
+                    else{
+                        sessionStorage.qnCount++;
+                        showQn();    
+                    }
+                   //alert(sessionStorage.qnCount);
+                                // (sessionStorage.qnCount + 1) >= qnList.length ? (sessionStorage.qnCount = qnList.length - 1) : sessionStorage.qnCount++;
+                        }
+                }
+
+        </script>
+
+        <div id="divCounter"></div>
+        <div id="divQn"></div><br>
+        <div id="divOptions"></div><br>
+        <button id="btnPrev" onclick="prevQn()">&laquo; Prev</button>
+        <button id="btnNext" onclick="nextQn()">Next &raquo;</button>
+
+        </body>
+</html>

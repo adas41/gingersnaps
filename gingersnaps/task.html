@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style type="text/css">
+
+        	#divCounter{
+        		-webkit-border-radius: 99px;
+                -moz-border-radius: 99px;
+                border-radius: 99px;
+                behavior: url(PIE.htc);
+        		width: 50px;
+                height: 50px;
+        		text-align: center;
+        		vertical-align: middle;
+        		background-color: #f00;
+        		color: #fff;
+        		display: inline;
+                overflow: hidden;
+        	}
+
+        	#divTask{
+        		display: inline;
+        	}
+
+        </style>
+
+	</head>
+	
+	<body>
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        
+        <script type="text/javascript">
+
+        	var taskList = [];
+
+        	if (typeof(Storage) !== "undefined"){
+
+        		if (!sessionStorage.taskCount){
+  					sessionStorage.taskCount = 0;
+	  			}
+				
+        	}
+
+        	window.addEventListener('storage', storageEventHandler, false);
+
+        	function storageEventHandler(evt){
+			    alert("storage event called key: " + evt);
+			}
+
+        	$(document).ready(function(){
+        		$.ajax({  
+                  type: "POST",  
+                  url: "./php/getTasks.php",  
+                  data: "",  
+                  success: function(response) {  
+                    console.log(response);
+                    taskList = JSON.parse(response);
+                    
+                    showTask();
+                  }  
+                });
+
+        		$("#imgInp").change(function(){
+                    saveImgToBank(this, "./php/saveImgToBank.php");
+                });
+
+        	});
+
+
+        	function saveImgToBank (obj, url) {
+        		//$("#frmCameraUpload").attr('action', url).submit();
+
+        		var oData = new FormData(document.forms.namedItem("frmCameraUpload"));
+                oData.append('id', Number(sessionStorage.taskCount) + 1);
+        		var oOutput = document.getElementById("output");
+
+        		var oReq = new XMLHttpRequest();
+			    oReq.open("POST", url, true);
+			  	oReq.onload = function(oEvent) {
+			    	if (oReq.status == 200) {
+			      		//oOutput.innerHTML = "Uploaded!";
+			      		//sessionStorage.taskCount++;
+                        //alert("Uploaded");
+			      		nextTask();
+			    	} else {
+			      		oOutput.innerHTML = "Error " + oReq.status + " occurred uploading your file.<br \/>";
+			    	}
+			  	};
+
+			  	oReq.send(oData);
+    
+        	}
+
+        	function showTask () {
+        		$("#divTask").html(taskList[sessionStorage.taskCount]['task_text']);
+        		$("#divCounter").html(Number(sessionStorage.taskCount) + 1);	
+        	}
+
+        	function prevTask () {
+        		if(sessionStorage.taskCount){
+        			(sessionStorage.taskCount - 1) < 0 ? sessionStorage.taskCount = 0 : sessionStorage.taskCount--;
+        			showTask();
+        		}
+        	}
+
+        	function nextTask () {
+                //alert(sessionStorage.taskCount);
+        		if(sessionStorage.taskCount){
+                    if((Number(sessionStorage.taskCount) + 1) >= taskList.length){
+                        alert("Congratulations! You successfully completed all the tasks. You can now start the storyboard building exercise.");
+                        window.location.href = "./storyboard.html";    
+                    }
+                    else{
+                        sessionStorage.taskCount++;
+                        showTask();    
+                    }
+                   //alert(sessionStorage.taskCount);
+        			// (sessionStorage.taskCount + 1) >= taskList.length ? (sessionStorage.taskCount = taskList.length - 1) : sessionStorage.taskCount++;
+        		}
+        	}
+
+        </script>
+
+        <div id="divCounter"></div>
+        <div id="divTask"></div><br>
+        <button id="btnPrev" onclick="prevTask()">&laquo; Prev</button>
+        <button id="btnNext" onclick="nextTask()">Next &raquo;</button>
+
+        <form id="frmCameraUpload" name="frmCameraUpload" runat="server" method="post" enctype="multipart/form-data">
+            <input name="imgInp" id="imgInp" type="file" accept="image/*;capture=camera">
+        </form>
+
+        <br><br>
+        <div id="output"></div>
+
+	</body>
+</html>
